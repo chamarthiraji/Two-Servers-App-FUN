@@ -7,9 +7,9 @@ var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root", //Your username
-    password: "ahakra226", //Your password
+    password: "*", //Your password
     database: "bamazon"
-})
+});
 
 connection.connect(function(err) {
     if (err) throw err;
@@ -22,62 +22,49 @@ var managerOptions = function() {
         name: "options",
         type: "list",
         message: "Choose an option?",
-        choices: ["View Products for Sale", "View Low Inventory","Add to Inventory","Add New Product"]
-
-        
+        choices: ["View Products for Sale", "View Low Inventory","Add to Inventory","Add New Product"]        
     }]).then(function(answer) {
         console.log("answer.options",answer.options);
         switch(answer.options) {
-            case 'View Products for Sale':
-                    
+            case 'View Products for Sale':                 
                 viewProducts();
-           break;
-            
+                break;            
             case 'View Low Inventory':
                 viewLowInventory();
-            break;
-            
+                break;        
             case 'Add to Inventory':
-               addToInventory();
-            break;
-            
+                addToInventory();
+                break;            
             case 'Add New Product':
                 addNewProduct();
-            break;
+                break;
             default:
-
-            console.log("give correct option");
+                console.log("give correct option");
         }
     });
-}
-//managerOptions();
+};
+
+//function for showing products table
 var viewProducts = function(){
     console.log("inside viewProducts");
     connection.query('SELECT * FROM products', function(err, res) {
-        console.log(err);
+        if(err) throw err;
         console.table(res);
-        /*for (var i = 0; i < res.length; i++) {
-            console.log(res[i].itemID + " | " + res[i].productName + " | " + res[i].price + " | " + res[i].stockQuantity);
-        }
-        console.log("-----------------------------------"); */
+        connection.end();
            
-    });
-  
-}
+    });  
+};
 
-
+//function for getting inventory less than 5
 var viewLowInventory = function(){
     connection.query('SELECT * FROM products WHERE stockQuantity <5', function(err, res) {
+        if(err) throw err;
         console.table(res);
-        /*for (var i = 0; i < res.length; i++) {
-            console.log(res[i].itemID + " | " + res[i].productName + " | " + res[i].price + " | " + res[i].stockQuantity);
-        }
-        console.log("-----------------------------------"); */
-           
-    });
-  
+        connection.end();
+    });  
 }
 
+//if inventory is low ,add inventory
 var addToInventory = function(){
     inquirer.prompt([{
         name: "id",
@@ -101,24 +88,20 @@ var addToInventory = function(){
                 return false;
             }
         }
-    }]).then(function(answer) {
-        
-        connection.query("UPDATE products SET? WHERE ?",[{
-           
+    }]).then(function(answer) {        
+        connection.query("UPDATE products SET? WHERE ?",[{           
              stockQuantity:answer.add
         },{
             itemID:answer.id
-
             }], function(err, res) {
-
-                console.log("inside callback updated inventory");
-                
-                       // console.log(err);
+                    if(err) throw err;
+                    connection.end();
         });
     });
 
 }
 
+//adding a new product column
 var addNewProduct = function(){
     inquirer.prompt([{
         name: "id",
@@ -145,7 +128,6 @@ var addNewProduct = function(){
         type: "input",
         message: "Enter price"
     },
-
     {
         name: "stockQuantity",
         type: "input",
@@ -167,12 +149,9 @@ var addNewProduct = function(){
          stockQuantity:answer.stockQuantity
 
     }, function(err, res) {
-                
-                console.log("inside callback inserted a product");
-                       // console.log(err);
+                if(err) throw err;
+                connection.end();
+               
         });
     });
-
-   
-
 }
