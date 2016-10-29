@@ -1,0 +1,24 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "app like amazon",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chamarthiraji/Two-Servers-App-FUN.git"
+  },
+  "author": "raji",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chamarthiraji/Two-Servers-App-FUN/issues"
+  },
+  "homepage": "https://github.com/chamarthiraji/Two-Servers-App-FUN#readme",
+  "dependencies": {
+    "console.table": "^0.7.0",
+    "inquirer": "^1.2.2",
+    "mysql": "^2.11.1"
+  }
+}
