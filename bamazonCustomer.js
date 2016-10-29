@@ -7,20 +7,22 @@ var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root", //Your username
-    password: "ahakra226", //Your password
+    password: "*", //Your password
     database: "bamazon"
-})
+});
 
 connection.connect(function(err) {
     if (err) throw err;
-    //console.log("connected as id " + connection.threadId);
-})
+   // console.log("connected as id " + connection.threadId);
+});
 
+
+// here we are querying database to get product table.
+//Here we are using console.table to show our result in the form of clean table
 connection.query('SELECT * FROM products', function(err, res) {
-    for (var i = 0; i < res.length; i++) {
-
-        //console.log(res[i].itemID + " | " + res[i].productName + " | " + res[i].price + " | " + res[i].stockQuantity);
-    }
+    console.log("ITEMS AVAILABLE FOR PURCHASE");
+    console.log("*********************************************");
+    console.log("");
     console.table(res);
 
     inquirer.prompt([
@@ -35,44 +37,23 @@ connection.query('SELECT * FROM products', function(err, res) {
             message: "Please Enter number of Products you want to buy "   
         }
     ]).then(function(answer) {
-        //conole.log("tempre: ",tempres);
 
-        // conole.log("tempres2: ",answer.tempres);
-        console.log("inside then");
-        console.log("answer.quantity ",answer.quantity);
-        console.log("res[answer.pId-1].stockQuantity",res[answer.pId-1].stockQuantity);
-
-
+        //if the customer is asking for more quantity than the available stock
         if (answer.quantity > res[answer.pId-1].stockQuantity) {
             console.log("Insufficient Quantity ");
+            connection.end();
         }
+        //when customer bought some items ,then we show them the cost of their purchase and update table 
+        //here we are also updating totalsales for departments table
         else{
-          var  remainingStock = res[answer.pId-1 ].stockQuantity - answer.quantity;
-            tprice = answer.quantity * res[answer.pId-1 ].price ;
-            console.log("inside else");
-            console.log("stockQuantity updated : ",res[answer.pId-1 ].stockQuantity - answer.quantity);
-            console.log("Your total purchase price " , answer.quantity * res[answer.pId-1 ].price );
-
+            var  remainingStock = res[answer.pId-1 ].stockQuantity - answer.quantity;
+            tprice = answer.quantity * res[answer.pId-1 ].price ;            
             connection.query('UPDATE products,departments SET products.stockQuantity = ?, departments.totalSales = departments.totalSales + ? WHERE products.itemID = ? AND products.dept = departments.dept;',
                 [remainingStock, tprice,answer.pId],function(err){
-                    if(err) throw err;
-                    console.log(err);
-            
-                console.log('The total cost of purchase is ',tprice);
-            
-          
-               
-            }); 
-
-          
-            
-        }
-       
-        
-    })
-}) 
-
-            
-
-
-
+                    if(err) throw err;            
+                    console.log('The total cost of purchase is: ',tprice);
+                    connection.end();
+            });            
+        }    
+    });     
+});
